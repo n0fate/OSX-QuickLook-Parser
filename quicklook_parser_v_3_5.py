@@ -60,6 +60,8 @@ import datetime
 import os
 import sys
 import subprocess
+import io
+import unicodedata
 
 try:
 	from biplist import *
@@ -158,7 +160,7 @@ def process_database(openfolder,savefolder,out_format):
 	if out_format != "excel":
 		report = os.path.join(savefolder,"report.tsv")
 		try:
-			report_file = open(report,"w")
+			report_file = io.open(report,"w", encoding='utf8')
 		except:
 			error = "Error opening report to write to. Verify file is not already open."
 			return ("Error",error)
@@ -234,7 +236,7 @@ def process_database(openfolder,savefolder,out_format):
 				worksheet.write(0,12, "FS ID", style_header)
 			
 			else:
-				report_file.write("File Row ID\tFolder\tFilename\tHit Count\tLast Hit Date\tLast Hit Date (UTC)\tHas thumbnail\tOriginal File Last Modified Raw\tOriginal File Last Modified(UTC)\tOriginal File Size\tGenerator\tFS ID\n")
+				report_file.write(u"File Row ID\tFolder\tFilename\tHit Count\tLast Hit Date\tLast Hit Date (UTC)\tHas thumbnail\tOriginal File Last Modified Raw\tOriginal File Last Modified(UTC)\tOriginal File Size\tGenerator\tFS ID\n")
 			
 			count = 0			
 			for row in rows:
@@ -355,9 +357,9 @@ def process_database(openfolder,savefolder,out_format):
 				if out_format == "excel":
 					
 					worksheet.write(count,0,rowid)
-					worksheet.write(count,1,folder.encode('ascii','ignore'))
-					worksheet.write(count,2,file_name.encode('ascii','ignore'))
-					worksheet.write(count,3,str(hit_count))
+					worksheet.write(count,1,unicodedata.normalize("NFKC", folder.encode("utf-8").decode("utf-8")) )
+					worksheet.write(count,2,unicodedata.normalize("NFKC", file_name.encode("utf-8").decode("utf-8")) )
+					worksheet.write(count,3,str(hit_count).encode('utf-8').decode('utf-8'))
 					worksheet.write(count,4,last_hit_date)
 					worksheet.write(count,5,decoded_last_hit_date)
 					worksheet.write(count,8,version_last_modified_raw)
@@ -367,8 +369,8 @@ def process_database(openfolder,savefolder,out_format):
 					worksheet.write(count,12,fs_id)
 				
 				else:				
-					report_file.write(str(rowid) + "\t" + folder.encode('ascii','ignore')+ "\t" + file_name.encode('ascii','ignore')+ "\t" + str(hit_count)+ "\t" + str(last_hit_date) + "\t" + str(decoded_last_hit_date) + "\t"
-					+  has_thumbnail + "\t" + version_last_modified_raw + "\t" + version_converted_date + "\t" + version_org_size + "\t" + version_generator + "\t" + fs_id + "\n")
+					report_file.write(unicode(str(rowid).encode("utf-8").decode("utf-8")  + "\t" + unicodedata.normalize("NFKC", folder.encode("utf-8").decode("utf-8")) + "\t" + unicodedata.normalize("NFKC", file_name.encode("utf-8").decode("utf-8")) + "\t" + str(hit_count).encode("utf-8").decode("utf-8") + "\t" + str(last_hit_date).encode("utf-8").decode("utf-8")  + "\t" + str(decoded_last_hit_date).encode("utf-8").decode("utf-8")  + "\t"
+					+  has_thumbnail + "\t" + version_last_modified_raw + "\t" + version_converted_date + "\t" + version_org_size + "\t" + version_generator + "\t" + fs_id + "\n"))
 				
 	if out_format == "excel":
 		workbook.close()
