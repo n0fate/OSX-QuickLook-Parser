@@ -265,6 +265,8 @@ def process_database(openfolder,savefolder,out_format):
 				plist= readPlist(filename)
 				
 				#read in all the key values in the plist file
+				version_generator = ""
+				version_org_size = ""
 				for key,value in plist.iteritems():
 					
 					if key == "date":
